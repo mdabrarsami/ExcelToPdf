@@ -28,6 +28,7 @@ namespace ExcelToPdf
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.btnDestination = new System.Windows.Forms.Button();
             this.btnSource = new System.Windows.Forms.Button();
             this.tbSource = new System.Windows.Forms.TextBox();
@@ -101,6 +102,7 @@ namespace ExcelToPdf
             this.Controls.Add(this.tbSource);
             this.Controls.Add(this.btnSource);
             this.Controls.Add(this.btnDestination);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

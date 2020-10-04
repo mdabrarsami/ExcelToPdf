@@ -16,6 +16,7 @@ namespace ExcelToPdf
             
             InitializeComponent();
             lblMsg.Hide();
+            Log.Write("ApplcationStarted");
         }
 
         private void btnDestination_Click(object sender, EventArgs e)
@@ -50,6 +51,9 @@ namespace ExcelToPdf
             string destinationFolder = tbDestination.Text;
             string sMsg = @"Sit back and Relax, Your Excel(s) are being Converted to PDF...";
 
+            Log.Write($"Source : {sourceFolder}");
+            Log.Write($"Destination : {destinationFolder}");
+
             tbDestination.Hide();
             tbSource.Hide();
             btnConvert.Hide();
@@ -74,6 +78,17 @@ namespace ExcelToPdf
                 }
 
                 var excelFilesToConvert = Directory.EnumerateFiles(directoryWithExcelFiles, "*.xls");
+
+                Log.Write($"" +
+                    $"Files to Convert :" +
+                    $"================");
+                var i = 1;
+                foreach (var sPath in excelFilesToConvert )
+                {
+                    Log.Write($"File ({i}) : {sPath.ToString()}");
+                    i++;
+                }
+
                 var excelInteropExcelToPdfConverter = new ExcelInteropExcelToPdfConverter();
 
                 try
@@ -83,6 +98,8 @@ namespace ExcelToPdf
                 catch (Exception ex)
                 {
                     MessageBox.Show($"Something went wrong: {ex.Message}");
+                    Log.Write($"Something went wrong: {ex.Message}");
+
                     Environment.ExitCode = -1;
 
                     tbDestination.Show();
@@ -134,6 +151,7 @@ namespace ExcelToPdf
             {
                 foreach (var excelFilePath in excelFilesPathToConvert)
                 {
+                    Log.Write($"Started Convesion of file : {excelFilePath}");
                     var thisFileWorkbook = excelApplication.ExcelApplication.Workbooks.Open(excelFilePath);
                     string newPdfFilePath = Path.Combine(
                         (dest.Length == 0 ? Path.GetDirectoryName(excelFilePath):dest),
@@ -142,13 +160,31 @@ namespace ExcelToPdf
                     thisFileWorkbook.ExportAsFixedFormat(
                         Microsoft.Office.Interop.Excel.XlFixedFormatType.xlTypePDF,
                         newPdfFilePath);
-                 
+                    Log.Write($"PDF saved to : {newPdfFilePath}");
+
                     thisFileWorkbook.Close(false, excelFilePath);
                     Marshal.ReleaseComObject(thisFileWorkbook);
+                    Log.Write($"Completed Convesion of file : {excelFilePath}");
                 }
             }
         }
     }
 
+    public static class Log
+    {
+        public static void Write(string sData)
+        {
 
+            using (FileStream fs = new FileStream(Path.GetTempPath() + "ExcelToPDF_"+DateTime.Now.ToShortDateString() + ".log", FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite))
+            {
+                StreamWriter sw = new StreamWriter(fs);
+                sw.BaseStream.Seek(0, SeekOrigin.End);
+                sw.WriteLine(DateTime.Now.ToString() + " - " + sData);
+                sw.Flush();
+                sw.Close();
+            }
+
+        }
+
+    }
 }
